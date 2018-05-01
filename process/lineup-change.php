@@ -1,7 +1,7 @@
 <?php
 require_once('../includes/_connect.inc.php');
 require_once('../functions/init.func.php');
-$error = "There was a problem submitting this form. Please try again.";
+$msg = "There was a problem submitting this form. Please try again.";
 $success = false;
 
 
@@ -58,38 +58,48 @@ if ( $success ){
 	$result = array();
 
 // if active is 0, we're promoting them to 1
-	if ( $active == 0 ){
 
-		$oldPlayer = 0;
-		// if there's only one player in this position, set that player id as the one to send to the bench
-		if ( $player_count == 1 ){
-			$oldPlayer = $fetchPlayer;
+	$oldPlayer = 0;
+	$replace = false;
+	if ( $active == 0 ){
+		// what's the position? We only have one center and keeper at a time
+		// position_id 3 = center, 4 = keeper
+
+		// if player count is less than 2, but they are a forward or defender, we'll go ahead and add this person anyway
+		// if player count is less than 1, but they are a center or keeper, add them without replacing
+		if ( ($player_count < 2 && ( $position == 1 || $position == 2) )
+	 		||
+			($player_count < 1 && ( $position == 3 || $position == 4))
+		){
+			$replace = false;
 		}
 		// else there's more than 1, so we need to find the lowest average
 		else{
-			$lowAverage = 10000000;
+
+			$tmp = array();
 			while ($stmt->fetch()){
-				// is this current average lower than the one we've set? Make it our new low
-				// also set the current "old player" to this player for now
-				if ( $average < $lowAverage ){
-					$lowAverage = $average;
-					$oldPlayer = $fetchPlayer;
-				}
+				$tmp["$fetchPlayer"] = $average;
 			}
+
+			asort($tmp);
+			$oldPlayer = key($tmp);
+			$replace = true;
 		}
 		$stmt->close();
-
-		// Now we need to take the old player set them is_active = 0
-		$stmt = $db->prepare(
-			"UPDATE player_team
-				SET is_active = 0
-				WHERE player_id = ?
-				LIMIT 1"
-			);
-		$stmt->bind_param("i",$oldPlayer);
-		$stmt->execute();
-		$stmt->close();
-		// set the POST player to the new spl_autoload_register
+		if ( $replace ){
+			// Now we need to take the old player set them is_active = 0
+			$stmt = $db->prepare(
+				"UPDATE player_team
+					SET is_active = 0,
+						team_captain = 0
+					WHERE player_id = ?
+					LIMIT 1"
+				);
+			$stmt->bind_param("i",$oldPlayer);
+			$stmt->execute();
+			$stmt->close();
+		}
+		// set the POST player to the new starter
 		$stmt = $db->prepare(
 			"UPDATE player_team
 				SET is_active = 1
@@ -117,12 +127,12 @@ if ( $success ){
 
 		$msg = "You've demoted your player.";
 	}
-
+	$_SESSION['status'] = $msg;
 	header("location:/lineup.php");
 	exit();
 }
 else{
-	$_SESSION['status'] = $error;
+	$_SESSION['status'] = $msg;
 	header("location:/lineup.php");
 }
 ?>

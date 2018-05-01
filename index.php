@@ -1,14 +1,14 @@
 <?php
-  require_once('/includes/_init.inc.php');
+  require_once('./includes/_init.inc.php');
   if(isset($_SESSION['user'])){
-    header("location:/home.php");
+    header("location:./home.php");
   }
-  require_once('/includes/head.inc');
+  require_once('./includes/head.inc');
 ?>
 
 <title>SportsBall Manager</title>
 
-<?php require_once('/includes/nav.inc');?>
+<?php require_once('./includes/nav.inc');?>
 
 <div id='main-container' class='container-fluid'>
 
@@ -69,6 +69,6 @@
 
 </div><!-- end content .container-fluid -->
 
-<?php require_once('/includes/footer.inc');?>
+<?php require_once('./includes/footer.inc');?>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <?php
 require_once('../includes/_connect.inc.php');
 require_once('../functions/init.func.php');
-$error = "There was a problem submitting this form. Please try again.";
+$msg = "There was a problem submitting this form. Please try again.";
 $success = false;
 
 
@@ -49,7 +49,8 @@ if ( $success ){
 	$stmt->bind_param("i",$player);
 	$stmt->execute();
 	$stmt->close();
-
+	$msg = "Player promoted to captain.";
+	$_SESSION['status'] = $msg;
 		if ($_SERVER['HTTP_REFERER']){
 			header("location:".$_SERVER['HTTP_REFERER']);
 		}
@@ -59,7 +60,7 @@ if ( $success ){
     exit();
   }
 else{
-	$_SESSION['status'] = $error;
+	$_SESSION['status'] = $msg;
 	if ($_SERVER['HTTP_REFERER']){
 		header("location:".$_SERVER['HTTP_REFERER']);
 	}

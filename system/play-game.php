@@ -1,4 +1,4 @@
-<?
+<?php
 // get the team_id for the people playing this game day.
 $stmt = $db->prepare("SELECT schedule_id,
 	(SELECT ds1.team_id FROM division_slot ds1
@@ -133,8 +133,8 @@ function playGame($team1,$team2,$schedule_id,$db){
 	$stmt->close();
 
 	// set the probability for each shot on goal. (AVG shot/totalCatch)/10
-	$teams[$team1]['shotChance'] = (($teams[$team1]['totalShot']/5)/$teams[$team2]['totalCatch'])/5;
-	$teams[$team2]['shotChance'] = (($teams[$team2]['totalShot']/5)/$teams[$team1]['totalCatch'])/5;
+	$teams[$team1]['shotChance'] = (((1+$teams[$team1]['totalShot'])/5)/(1+$teams[$team2]['totalCatch']))/5;
+	$teams[$team2]['shotChance'] = (((1+$teams[$team2]['totalShot'])/5)/(1+$teams[$team1]['totalCatch']))/5;
 
 	//Endurance protects against strength. Divide Srength by Endurance to get success of Defenders against approaching Forwads. Divide Pass by Block for success of passing game. Divide team1 awareness against team2 awareness
 	$teams[$team1]['chanceToTakeShot'] += (($teams[$team1]['totalStr']/$teams[$team2]['totalEnd']) + ($teams[$team1]['totalPass']/$teams[$team2]['totalBlock']) + ($teams[$team1]['totalAw']/$teams[$team2]['totalAw']) + ($teams[$team1]['totalSpeed']/$teams[$team2]['totalSpeed']))*1.5;
@@ -181,6 +181,65 @@ function playGame($team1,$team2,$schedule_id,$db){
 	$stmt->bind_param('iiiii',$schedule_id,$winner,$loser,$winScore,$loseScore);
 	$stmt->execute();
 	$stmt->close();
+	// pay the teams for this game.
+	// total money equals 6% popularity and 8% of total charisma of both teams.
+	// home team get 60% of the pot. Visiting team gets 20%. Winning team gets leftover 20%
+	$teamOneShare = .2;
+	$teamOnePay = 0;
+	$teamTwoShare = .6;
+	$teamTwoPay = 0;
+	if ( $winner == $team1 ){
+		$teamOneShare = .4;
+	}
+	else{
+		$teamTwoShare = .8;
+	}
+
+	$stmt = $db->prepare(
+		"SELECT SUM(player_charisma),
+			(SELECT SUM(team.team_elo) FROM team WHERE team.team_id IN (?,?) )
+	FROM player
+    JOIN player_team
+    ON player.player_id = player_team.player_id
+    JOIN team
+    ON player_team.team_id = team.team_id
+    WHERE team.team_id IN (?,?)
+    AND player_team.is_active = 1
+    GROUP BY team.team_id"
+	);
+	$stmt->bind_param('iiii',$team1,$team2,$team1,$team2);
+	$stmt->execute();
+	$stmt->bind_result($charisma,$teamELO);
+	$stmt->store_result();
+
+	while($stmt->fetch()){
+		$pay = round( ($teamELO*.08)+($charisma*.06) );
+		$teamOnePay = round($pay*$teamOneShare);
+		$teamTwoPay = round($pay*$teamTwoShare);
+	}
+	$stmt->close();
+
+	// Now update team_money to give each team their payout
+	$stmt = $db->prepare(
+		"UPDATE team_money
+			SET credits = credits + ?
+			WHERE team_id = ?"
+	);
+	$stmt->bind_param('ii',$teamOnePay,$team1);
+	$stmt->execute();
+	$stmt->close();
+	$stmt = $db->prepare(
+		"UPDATE team_money
+			SET credits = credits + ?
+			WHERE team_id = ?"
+	);
+	$stmt->bind_param('ii',$teamTwoPay,$team2);
+	$stmt->execute();
+	$stmt->close();
+
+	// first do the home team ( $team2 )
+	// run the elo scores for the match
+	runELO($winner,$loser,$db);
 }
 
 function takeShot($shots,$chance){
@@ -195,5 +254,74 @@ function takeShot($shots,$chance){
 		}
 	}
 	return $score;
+}
+
+
+function runELO($winner,$loser,$db){
+	// Get Current Ratings
+  $Ra;
+  $Rb;
+
+  $stmt = $db->prepare(
+		"SELECT team_elo
+			FROM team
+      WHERE team_id = ?
+			LIMIT 1"
+		);
+	$stmt->bind_param('i',$winner);
+	$stmt->execute();
+	$stmt->store_result();
+	$stmt->bind_result($elo_a);
+  $stmt->fetch();
+  $Ra = $elo_a;
+	$stmt->close();
+
+	$stmt = $db->prepare(
+		"SELECT team_elo
+			FROM team
+      WHERE team_id = ?
+			LIMIT 1"
+		);
+	$stmt->bind_param('i',$loser);
+	$stmt->execute();
+	$stmt->store_result();
+	$stmt->bind_result($elo_b);
+  $stmt->fetch();
+  $Rb = $elo_b;
+	$stmt->close();
+
+//weight
+  $K = 15;
+//Win chance
+  $Ea;
+  $Eb;
+//New Ratings
+  $Rna;
+  $Rnb;
+
+// Get the chance of winning
+  $Ea = 1/(1+pow(10,(($Rb-$Ra)/400)));
+  $Eb = 1/(1+pow(10,(($Ra-$Rb)/400)));
+
+// Get the updated scores
+  $Rna = round($Ra + 15*(1-$Ea));
+  $Rnb = round($Rb + 15*(0-$Eb));
+
+// update the db with the new elo scores
+$stmt = $db->prepare(
+	"UPDATE team SET team_elo = ?
+		WHERE team_id = ?"
+	);
+	$stmt->bind_param('ii',$Rna,$winner);
+	$stmt->execute();
+	$stmt->close();
+
+$stmt = $db->prepare(
+	"UPDATE team SET team_elo = ?
+		WHERE team_id = ?"
+	);
+	$stmt->bind_param('ii',$Rnb,$loser);
+	$stmt->execute();
+	$stmt->close();
 }
 ?>

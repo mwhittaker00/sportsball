@@ -1,15 +1,15 @@
 <?php
-  require_once('/includes/_init.inc.php');
+  require_once('./includes/_init.inc.php');
   // go back to index if they aren't logged in or if they have a team id
   if(!isset($_SESSION['user']) || $_SESSION['user']['team_id']){
     header("location:/");
   }
-  require_once('/includes/head.inc');
+  require_once('./includes/head.inc');
 ?>
 
 <title>Create a Team | SportsBall Manager</title>
 
-<?php require_once('/includes/nav.inc');?>
+<?php require_once('./includes/nav.inc');?>
 
 <div id='main-container' class='container-fluid'>
 
@@ -59,6 +59,6 @@
 
 </div><!-- end content .container-fluid -->
 
-<?php require_once('/includes/footer.inc');?>
+<?php require_once('./includes/footer.inc');?>
 </body>
 </html>

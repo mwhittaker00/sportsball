@@ -1,5 +1,5 @@
 <?php
-  require_once('/includes/_init.inc.php');
+  require_once('./includes/_init.inc.php');
   if(!isset($_SESSION['user']) || !isset($_GET['player'])){
     header("location:/");
   }
@@ -7,18 +7,18 @@
   /* gets the player data for the page being viewed
   $position_id, $position, $player_id, $player_fname, $player_lname, $team_name, $team_id, $player_age, $speed, $endurance, $strength, $pass, $block, $shot, $catch, $aware, $charisma, $avg
   */
-  require_once('/control/_player.php');
-  require_once('/includes/head.inc');
+  require_once('./control/_player.php');
+  require_once('./includes/head.inc');
 ?>
 
 <title>SportsBall Manager</title>
 
-<?php require_once('/includes/nav.inc');?>
+<?php require_once('./includes/nav.inc');?>
 
 <div id='main-container' class='container-fluid'>
 
   <div class='row-fluid'>
-<?php require_once('/includes/left-column.inc');?>
+<?php require_once('./includes/left-column.inc');?>
 
     <h1>
       <canvas class='team-colors-box team-colors'></canvas> <?=$player['name'];?>
@@ -107,7 +107,7 @@
       </div>
 
       <div class='col-xs-7'>
-<?php if (!$player['cpt_bool'] && $player['team_id'] == $_SESSION['user']['team_id']){ ?>
+<?php if (!$player['cpt_bool'] && $player['team_id'] == $_SESSION['user']['team_id'] && $player['is_active'] == 1){ ?>
 
       <p>The captain is your team's leader on the field. A charismatic captian can motivate their teammates to give a little bit extra during a game.</p>
 
@@ -117,6 +117,17 @@
         <input type='submit' value='Promote <?=$player['name'];?> to captain.' class='btn btn-default' />
       </form>
       <small>This will demote your current team captain.</small>
+
+<?php }
+  if ($player['team_id'] == $_SESSION['user']['team_id'] && $player['is_active'] == 0){
+?>
+      <p>Remove the player from your team and immediately make them a free agent?</p>
+      <p><em>This cannot be undone!</em></p>
+      <form action='/process/release-player.php' method='post'>
+        <input type='hidden' name='player' value='<?=$player['id'];?>' required />
+        <input type='submit' class='btn btn-danger' value='Release Player' />
+      </form>
+
 
 <?php } ?>
       </div>
@@ -128,6 +139,6 @@
 
 </div><!-- end content .container-fluid -->
 
-<?php require_once('/includes/footer.inc');?>
+<?php require_once('./includes/footer.inc');?>
 </body>
 </html>

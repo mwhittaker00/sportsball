@@ -16,8 +16,8 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="main-nav-collapse">
       <ul class="nav navbar-nav">
-        <li><a href="/league.php">League</a></li>
-        <li><a href="https://discord.gg/S944xyu">Community</a></li>
+        <li><a href="/division.php">Division</a></li>
+        <li><a href="https://discord.gg/S944xyu" target="_blank">Community</a></li>
       </ul>
 
 <?php if(!isset($_SESSION['user'])){ ?>

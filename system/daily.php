@@ -17,12 +17,24 @@ $stmt->fetch();
 $stmt->close();
 
 //
-// If the game_day hit the max, we need to start next season
+// If the game_day hit the max, we enter the "management" day
 //
+if ( $gameDay == $maxGameDay ){
+  require_once("./management-day.php");
+  // Now increment the game_day by 1
+  //
+  $stmt = $db->prepare("UPDATE system SET game_day = game_day + 1");
+  $stmt->execute();
+  $stmt->close();
 
+  // decrease all contract lengths that aren't already 0 by 1
+  $stmt = $db->prepare("UPDATE contract SET seasons_left = seasons_left - 1");
+  $stmt->execute();
+  $stmt->close();
+}
 // if we've passed the max game day, reset the game day
 // and make a new schedule
-if ( $gameDay == $maxGameDay ){
+else if ( $gameDay > $maxGameDay ){
   $stmt = $db->prepare(
     "UPDATE system
       SET game_day = 0,
@@ -30,6 +42,26 @@ if ( $gameDay == $maxGameDay ){
   );
   $stmt->execute();
   $stmt->close();
+
+  // Any contracts at 0 seasons_left, and where the player is on a non-0 team, need to be updated to make that player a free agent. Set their player_team to 0 and add them to the bid table for 5 days
+  $stmt = $db->prepare(
+    "UPDATE player_team
+      SET team_id = 0
+      WHERE team_id != 0
+      AND player_id IN (SELECT contract.player_id FROM contract WHERE seasons_left = 0)"
+    );
+  $stmt->execute();
+  $stmt->close();
+  // add these players into the bid table
+  $stmt = $db->prepare(
+    "INSERT INTO bid (player_id, bid_amount, bid_show)
+      SELECT contract.player_id, contract.base_cost, contract.base_cost
+        FROM contract
+        WHERE contract.player_id NOT IN (SELECT b.player_id FROM bid b WHERE days_left > 0)"
+    );
+  $stmt->execute();
+  $stmt->close();
+
   require_once("./make-schedule.php");
 }
 else{
@@ -45,8 +77,6 @@ else{
   require_once("./free-agents.php");
   //
   // END FREE AGENT HANDLING
-  //
-  //
   // Now increment the game_day by 1
   //
   $stmt = $db->prepare("UPDATE system SET game_day = game_day + 1");

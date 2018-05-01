@@ -1,7 +1,7 @@
 <?php
 require_once('../includes/_connect.inc.php');
 require_once('../functions/init.func.php');
-$error = "There was a problem submitting this form. Please try again.";
+$msg = "There was a problem submitting this form. Please try again.";
 $success = false;
 
 
@@ -11,7 +11,7 @@ $user = $_SESSION['user']['id'];
 
 if ( empty($bid) || empty($player) || empty($user) ){
 	$success = false;
-	$error = "A field was left emtpy.";
+	$msg = "A field was left emtpy.";
 }
 
 // get the team id for this player to make sure it's not on a team
@@ -50,13 +50,13 @@ if ( $fetchTeam == 0 ){
 	$success = true;
 }
 else{
-	$error = "This player is not a free agent.";
+	$msg = "This player is not a free agent.";
 	$success = false;
 }
 
 // check if team has enough money for this bid
 if ( $bid > $credits ){
-	$error = "You don't have enough money.";
+	$msg = "You don't have enough money.";
 	$success = false;
 }
 else{
@@ -69,10 +69,12 @@ if ( $success ){
 	$team = 0; // the team that will be assigned to this bid
 	if ( $bid > $fetchBid_high){
 		$success = true;
+		$_SESSION['status'] = "You have raised your maximum bid.";
 		$team = $_SESSION['user']['team_id']; // set winner to current team
 
 		// if the current team is just raising their own bid, don't raise the show bid
 		if ( $fetchTeam != $_SESSION['user']['team_id'] ){
+			$_SESSION['status'] = "You now control this bid. Congratulations!";
 			$bid_show = $fetchBid_high+1; // set the new bid_show to lowest possible value
 		}
 	}
@@ -84,21 +86,21 @@ if ( $success ){
 		$bid = $fetchBid_high; // don't want to lower the controlling bid,
 
 		//Prep notification that the current bid is still too high
-		$error = "You bid below the controlling bid.";
-		$_SESSION['status'] = $error;
+		$msg = "You bid below the controlling bid.";
+		$_SESSION['status'] = $msg;
 	}
 	// is the bid higher than the current showing bid, less than the highest bid, but for the winning bidder?
 	else if ( $bid > $bid_show && $bid <= $fetchBid_high && $fetchTeam == $_SESSION['user']['team_id'] ){
 		$success = false;
-		$error = "You already control the winning bid.";
-		$_SESSION['status'] = $error;
+		$msg = "You already control the winning bid.";
+		$_SESSION['status'] = $msg;
 		header("location:/freeagent.php");
 	}
 	// if it's too low kick them out
 	else{
 		$success = false;
-		$error = "Your bid is lower than the current bid.";
-		$_SESSION['status'] = $error;
+		$msg = "Your bid is lower than the current bid.";
+		$_SESSION['status'] = $msg;
 		header("location:/freeagent.php");
 	}
 }
@@ -154,7 +156,7 @@ if ( $success && $team != 0 ){
   }
 
 else{
-	$_SESSION['status'] = $error;
+	$_SESSION['status'] = $msg;
 	header("location:/freeagent.php");
 }
 

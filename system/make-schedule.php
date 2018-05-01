@@ -20,7 +20,48 @@ while($stmt->fetch()){
 	$i++;
 }
 $stmt->close();
-
+// Clear the division_slot table and rebuild for any division changes.
+$stmt = $db->prepare(
+	"UPDATE division_slot
+	SET is_current_season = 0
+	WHERE 1"
+);
+$stmt->execute();
+$stmt->close();
+// now rebuild it with existing teams
+$stmt = $db->prepare(
+	"INSERT INTO division_slot (division_id, group_id, team_id, is_current_season)
+		SELECT division_id, 0, team_id, 1 FROM team_division"
+	);
+	$stmt->execute();
+	$stmt->close();
+// a division can have up to 12 players, but might have fewer
+// need to add NULL placeholder spots for any new players who might join
+// the division after a season starts
+$totalTeamsCount = 12;
+$stmt = $db->prepare(
+	"SELECT team_id FROM team_division WHERE division_id = 1"
+);
+$stmt->execute();
+$stmt->store_result();
+$actualTeamsCount = $stmt->num_rows();
+$remainingTeamsCount = $totalTeamsCount - $actualTeamsCount;
+$insertString = '';
+if ( $remainingTeamsCount > 0 ){
+	for($r = $remainingTeamsCount; $r > 0; $r--){
+		$insertString.="(1,0,1)";
+		if ( $r > 1 ){
+			$insertString.=",";
+		}
+	}
+}
+// now add the null team slots
+$stmt = $db->prepare(
+	"INSERT INTO division_slot (division_id, group_id, is_current_season)
+	VALUES".$insertString
+);
+$stmt->execute();
+$stmt->close();
 // Select all of the slots from division_slot
 $stmt = $db->prepare(
 	"SELECT slot_id, division_id
@@ -77,21 +118,23 @@ foreach($season as $teams){
 	shuffle($games);
 	// need to assign a gameday to each game now after they've been shuffled
 	$g = 0;
+	$nextSeason = $currentSeason+1;
 	foreach($games AS $round => $game){
 		$gamesPrep = [];
-		$gamesPrep = "(".$game[0].",".$game[1].",".$gameDayArray[$g].")";
+		$gamesPrep = "(".$game[0].",".$game[1].",".$gameDayArray[$g].",".$nextSeason.")";
 		$g++;
 		array_push($gamesArray,$gamesPrep);
 	}
 
 }
+
 $stmt->close();
 // implode the array for an insert-friendly string
 $gameString = implode(',',$gamesArray);
 
 $stmt = $db->prepare(
 	"INSERT INTO schedule
-		(slot_id_1, slot_id_2, game_day)
+		(slot_id_1, slot_id_2, game_day, season_number)
 		VALUES
 		".$gameString
 	);
@@ -116,7 +159,7 @@ $stmt = $db->prepare(
   "UPDATE player_team
 	   SET team_id = 0,
 		 is_active = 0,
-		 team_caption = 0
+		 team_captain = 0
      WHERE player_id IN (
        SELECT player_id
         FROM contract
@@ -141,6 +184,5 @@ $stmt = $db->prepare(
 		);
 		$stmt->execute();
 	  $stmt->close();
-
 
 ?>

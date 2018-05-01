@@ -1,4 +1,5 @@
-<?// decrement days left in bids table
+<?php
+// decrement days left in bids table
 	$stmt = $db->prepare(
 		"UPDATE bid
 			SET days_left = days_left - 1"

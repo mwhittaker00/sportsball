@@ -1,10 +1,10 @@
 <?php
-  require_once('/includes/_init.inc.php');
+  require_once('./includes/_init.inc.php');
   if(!isset($_SESSION['user'])){
     header("location:/");
   }
-  require_once('/control/_freeagent.php');
-  require_once('/includes/head.inc');
+  require_once('./control/_freeagent.php');
+  require_once('./includes/head.inc');
 ?>
 
 <link href="/resources/css/footable.core.bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -23,17 +23,17 @@
 
 <title>SportsBall Manager</title>
 
-<?php require_once('/includes/nav.inc');?>
+<?php require_once('./includes/nav.inc');?>
 
 <div id='main-container' class='container-fluid'>
 
   <div class='row-fluid'>
-<?php require_once('/includes/left-column.inc');?>
+<?php require_once('./includes/left-column.inc');?>
 
     <h1>Free Agents</h1>
     <hr />
     <div class='col-sm-9'>
-<?php require_once('/includes/nav-office.inc');?>
+<?php require_once('./includes/nav-office.inc');?>
 
 <table class='footable table' data-sorting="true" data-filtering="true">
   <thead>
@@ -92,6 +92,6 @@
 </div><!-- end content .container-fluid -->
 
 
-<?php require_once('/includes/footer.inc');?>
+<?php require_once('./includes/footer.inc');?>
 </body>
 </html>

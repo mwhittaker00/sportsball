@@ -3,7 +3,7 @@
   <div class='row-fluid'>
 
     <div class='team-info-box small'>
-      <span class='team-name h4'>
+      <span class='team-name h3'>
         <a href="/team.php">
           <?=$_SESSION['user']['team_name'];?>
         </a>
@@ -12,6 +12,8 @@
         <a href="/division.php?division=<?=$_SESSION['user']['division_id'];?>">
           <?=$_SESSION['user']['division_name'];?>
         </a>
+        <br />
+        <strong>Popularity: </strong><?=$_SESSION['user']['elo'];?>
         <br />
         <strong>Record: </strong><?=$_SESSION['user']['win'];?> - <?=$_SESSION['user']['loss'];?>
         <br />
@@ -45,6 +47,11 @@
               Team
             </a>
 
+          </li>
+          <li role="presentation">
+            <a href='/division.php' role='button'>
+              <span class='glyphicon glyphicon-globe' aria-hidden='true'></span> Division
+            </a>
           </li>
 
           <li role="presentation">

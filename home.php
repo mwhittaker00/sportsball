@@ -1,26 +1,26 @@
 <?php
-  require_once('/includes/_init.inc.php');
+  require_once('./includes/_init.inc.php');
   if(!isset($_SESSION['user'])){
     header("location:/");
   }
-  require_once('/control/_home.php');
-  require_once('/includes/head.inc');
+  require_once('./control/_home.php');
+  require_once('./includes/head.inc');
 ?>
 
 <title>SportsBall Manager</title>
 
-<?php require_once('/includes/nav.inc');?>
+<?php require_once('./includes/nav.inc');?>
 
 <div id='main-container' class='container-fluid'>
 
   <div class='row-fluid'>
-<?php require_once('/includes/left-column.inc');?>
+<?php require_once('./includes/left-column.inc');?>
 
     <h1>The Front Office</h1>
     <hr />
     <div class='col-sm-9'>
 
-<?php require_once('/includes/nav-office.inc');?>
+<?php require_once('./includes/nav-office.inc');?>
 
       <div class='col-sm-8'>
           <h2>News and updates...</h2>
@@ -76,13 +76,24 @@
       // set the $game_result to empty string
       $game_result = "";
     }
+    // check if this game is the current game day. If so, add a class to highlight these games
+    if ( $gameDay == $schedule_row['game_day'] ){
+      $currentDay = 'current-day';
+    }
+    else {
+      $currentDay = '';
+    }
   ?>
 
 
-      <div class='<?=$game_result;?> well well-sm'>
+      <div class='<?=$game_result;?> <?=$currentDay;?> well well-sm'>
         <strong>Game Day <?=$schedule_row['game_day']+1;?></strong>
         <br />
-        <?=$team1;?> <br /> <?=$team2;?>
+        <?=$team1;?>
+        <br />
+        <strong><em>at</em></strong>
+        <br />
+        <?=$team2;?>
       </div>
 
   <?php
@@ -99,6 +110,6 @@
 </div><!-- end content .container-fluid -->
 
 
-<?php require_once('/includes/footer.inc');?>
+<?php require_once('./includes/footer.inc');?>
 </body>
 </html>

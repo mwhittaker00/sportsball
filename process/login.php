@@ -98,6 +98,6 @@ if ( $passwordVerified ){
 else{
 	$success = false;
 	$_SESSION['status'] = "We couldn't find your username or password in the system.";
-	//header("location:/");
+	header("location:/");
 }
 ?>

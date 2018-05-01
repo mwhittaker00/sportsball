@@ -16,17 +16,21 @@ body{
   padding-bottom: 35px;
   min-height: 100%;
   background-color: #081528;
-  color: #e1e1e1;
+  color: #f1f1f1;
   font-family: 'Open Sans',Helvetica,Arial,Verdana,sans-serif;
 }
 
 a{
   color: #004784;
-  font-weight:bold;
+  font-weight:900;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-family: 'Oswald', sans-serif;
+}
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a, .h1 a, .h2 a, .h3 a, .h4 a, .h5 a, .h6 a{
+  font-weight:400;
 }
 
 .h4, .h5, .h6, h4, h5, h6{
@@ -38,6 +42,13 @@ hr{
   border-top:2px solid #1180cc;
 }
 
+textarea{
+  color:#000;
+}
+
+a.light-link{
+  color:#80ffff;
+}
 .clear{
   clear:both;
 }
@@ -59,7 +70,6 @@ hr{
 }
 
 .team-name{
-  font-weight:bold;
 }
 
 #status-alert{
@@ -77,7 +87,7 @@ hr{
 
 #main-container{
   width:90%;
-  margin:0 auto;
+  margin:0 auto 20px auto;
 }
 
 .mini-team-logo{
@@ -97,6 +107,10 @@ hr{
   width:100%;
 }
 
+.team-colors-bar-small{
+  height:2px;
+}
+
 .team-colors-box{
   height:40px;
   width:40px;
@@ -106,6 +120,10 @@ hr{
 .sm-team-colors-box{
   height:20px;
   width:20px;
+}
+
+.team-colors-short{
+  height:15px;
 }
 
 .align-right{
@@ -120,6 +138,10 @@ hr{
 colors for the game result cards for the current player
 when viewing schedules
 */
+.current-day{
+  background-color: #feffcb;
+}
+
 .winner{
   background-color: #efffef;
   border:1px solid #008800;
@@ -136,6 +158,34 @@ when viewing schedules
 .player-row{
   border-top:1px solid #efefef;
   padding:5px 0 0 0;
+}
+
+/** Division Page **/
+
+.division-comm{
+  padding:10px 0 0 0;
+  border-bottom:1px solid #ebebeb;
+}
+
+.division-comm:last-of-type{
+  border-bottom:none;
+}
+
+.comm-timestamp{
+  position:absolute;
+  right:7%;
+}
+.division-comm-content{
+  padding:10px;
+}
+
+#division-message textarea{
+  width:100%;
+  min-height: 100px;
+}
+
+#division-message .btn{
+  font-size: 1.5em;
 }
 
 footer{
@@ -240,7 +290,7 @@ table.footable.dropdown-menu a{
 }
 
  .btn{
-   font-family: 'Oswald', sans-serif;
+   font-weight:bold;
  }
 
  .well{
