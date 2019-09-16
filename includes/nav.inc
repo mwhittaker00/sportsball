@@ -16,8 +16,9 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="main-nav-collapse">
       <ul class="nav navbar-nav">
-        <li><a href="/division.php">Division</a></li>
+        <li><a href="/about.php">About SBM</a></li>
         <li><a href="https://discord.gg/S944xyu" target="_blank">Community</a></li>
+        <li><a href="https://trello.com/b/MoGZca0F/sportsball-manager" target="_blank">Development Progress</a></li>
       </ul>
 
 <?php if(!isset($_SESSION['user'])){ ?>
@@ -48,6 +49,6 @@ $statusMessage = '';
 if (isset($_SESSION['status']) && strlen($_SESSION['status']) > 1){
   $statusMessage = $_SESSION['status'];
   unset($_SESSION['status']);
-  echo "<div id='status-alert'>".$statusMessage."<br /><br /><a href='.' class='btn' id='close-status'>Close</a></div>";
+  echo "<div id='status-alert'>".$statusMessage."<br /><br /><a href='.' class='btn btn-default' id='close-status'>Close</a></div>";
 }
 ?>

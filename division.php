@@ -28,27 +28,24 @@
 
 <div id='main-container' class='container-fluid'>
 
-  <div class='row-fluid'>
+  <div class='row'>
 <?php require_once('./includes/left-column.inc');?>
-
+  <div class='col-sm-9'>
     <h1> <?=$division['name'];?> </h1>
 
     <hr />
-    <div class='col-sm-9'>
-
-      <div class='row-fluid'>
-          <h2>Standings</h2>
-          <table class='footable table' data-sorting="true">
-            <thead>
-              <tr>
-                <th class='footable-first-column' data-type="number">Rank</th>
-                <th>Team</th>
-                <th data-type="number">Win</th>
-                <th data-type="number">Lose</th>
-                <th class='footable-last-column' data-type="number">Diff</th>
-              </tr>
-            </thead>
-            <tbody>
+      <h2>Standings</h2>
+      <table class='footable table' data-sorting="true">
+        <thead>
+          <tr>
+            <th class='footable-first-column' data-type="number">Rank</th>
+            <th>Team</th>
+            <th data-type="number">Win</th>
+            <th data-type="number">Lose</th>
+            <th class='footable-last-column' data-type="number">Diff</th>
+          </tr>
+        </thead>
+        <tbody>
     <!-- DISPLAY TEAM PLAYERS -->
 <?php
 $i = 0;
@@ -81,19 +78,25 @@ while($i < $team_num){
 ?>
         </tbody>
         </table>
-        </div>
-        <div class='row-fluid'>
           <h2>Communications</h2>
-          <div class='well well-sm'>
+<?php
+// only start posts well if there are posts
+if ($post_num) {
+?>
+      <div class='well well-sm'>
 <?php
 $i = 0;
 while($i < $post_num){
   $post = $post_result[$i];
+  // if the team id is 0, this is a system message so we don't need the team name to be a link
+  if ($post['team_id'] == 0) {
+    $team_link = "<span class='h4'>".$post['name']."</span>";
+  } else {
+    $team_link = "<a class='h4' href='/team.php?team=".$team_row['id']."'>".$post['name']."</a>";
+  }
 ?>
           <div class='division-comm'>
-            <a class='h4' href="/team.php?team=<?=$team_row['id'];?>">
-              <?=$post['name'];?>
-            </a>
+            <?=$team_link;?>
             <small class='text-muted comm-timestamp'><?=$post['time'];?></small>
             <div class='team-colors team-colors-bar team-colors-bar-small' style='background: linear-gradient(to right, <?=$post['color1'];?> 0%, <?=$post['color1'];?> 50%, <?=$post['color2'];?> 50%, <?=$post['color2'];?> 100%);'></div>
             <div class='division-comm-content'>
@@ -103,8 +106,11 @@ while($i < $post_num){
 <?php
   $i++;
 }
+// close post_num check and div
 ?>
           </div>
+<?php } ?>
+
           <br />
           <form id='division-message' action='/process/post-message.php' method='post'>
             <label for='comm'><h3>Leave a message.</h3></label>
@@ -115,7 +121,7 @@ while($i < $post_num){
             <input type='submit' class='btn btn-default pull-right' value='Submit' />
           </form>
         </div>
-    </div>
+      </div>
   </div>
 
 </div><!-- end content .container-fluid -->

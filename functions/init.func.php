@@ -118,6 +118,14 @@ function newPlayer($position,$db,$modifier=0){
 	foreach($penalty as $key){
 		$stat[$key] = $stat[$key]-7;
 	}
+	// CREATE A BASE COST for new player's contract
+	// find the player's average
+	$avg = $stat['speed']+$stat['endurance']+$stat['strength']+$stat['pass']+$stat['block']+$stat['shot']+$stat['catch']+$stat['aware']+$stat['charisma'];
+	$potential = $stat['potential'];
+
+	$avg = $avg/9;
+	$potential = $potential/10;
+	$cost = floor($avg*$potential);
 
 // create the player in the db
 	$stmt = $db->prepare(
@@ -141,7 +149,7 @@ function newPlayer($position,$db,$modifier=0){
 	$stmt->fetch();
 	$stmt->close();
 
-// link the player to the player_position TokyoTyrantTable
+// link the player to the player_position table
 	$stmt = $db->prepare(
 		"INSERT INTO player_position
 			(player_id, position_id)
@@ -155,11 +163,11 @@ function newPlayer($position,$db,$modifier=0){
 // add player to the contract table
 	$stmt = $db->prepare(
 		"INSERT INTO contract
-		(player_id)
+		(player_id,base_cost)
 		VALUES
-		(?)"
+		(?,?)"
 	);
-	$stmt->bind_param('i',$insertID);
+	$stmt->bind_param('ii',$insertID,$cost);
 	$stmt->execute();
 	$stmt->close();
 

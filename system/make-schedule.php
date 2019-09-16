@@ -127,7 +127,6 @@ foreach($season as $teams){
 	}
 
 }
-
 $stmt->close();
 // implode the array for an insert-friendly string
 $gameString = implode(',',$gamesArray);
@@ -138,17 +137,6 @@ $stmt = $db->prepare(
 		VALUES
 		".$gameString
 	);
-$stmt->execute();
-$stmt->close();
-
-//
-// Subtract 1 contract season for every player
-//
-$stmt = $db->prepare(
-  "UPDATE contract
-    SET seasons_left = seasons_left - 1
-    WHERE seasons_left > 0"
-  );
 $stmt->execute();
 $stmt->close();
 
@@ -184,5 +172,6 @@ $stmt = $db->prepare(
 		);
 		$stmt->execute();
 	  $stmt->close();
+
 
 ?>

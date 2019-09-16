@@ -25,12 +25,11 @@
 
 <div id='main-container' class='container-fluid'>
 
-  <div class='row-fluid'>
+  <div class='row'>
 <?php require_once('./includes/left-column.inc');?>
-
-    <h1>Free Agents</h1>
+  <div class='col-sm-9'>
+    <h1>Lineup</h1>
     <hr />
-    <div class='col-sm-9'>
 <?php require_once('./includes/nav-team.inc');?>
 
 <h3>Starters</h3>
@@ -70,7 +69,7 @@ if ( $row['captain'] > 0 ){
   echo "Captain";
 } else{
 ?>
-        <form class='form-inline bid-form' action="/process/make-captain.php" method="post">
+        <form class='form-inline' action="/process/make-captain.php" method="post">
           <label for='captain-<?=$i;?>' class='sr-only'>Promote to Captain</label>
           <input type='hidden' name='player' value='<?=$row['id'];?>' required />
           <input type='hidden' name='team' value='<?=$_SESSION['user']['team_id'];?>' required />
@@ -81,7 +80,7 @@ if ( $row['captain'] > 0 ){
 ?>
       </td>
       <td>
-        <form class='form-inline bid-form' action='/process/lineup-change.php' method='post'>
+        <form class='form-inline' action='/process/lineup-change.php' method='post'>
           <input type='hidden' name='player' value='<?=$row['id'];?>' required />
           <input type='hidden' name='active' value='<?=$row['active'];?>' required />
           <div class='form-group'>
@@ -106,6 +105,7 @@ reset($player_result);
 <p>
 Promoting a backup to starter will replace the lowest average starter for that position. If the position only has one available spot like Keeper or Center, the backup will always replace the startup.
 </p>
+<p>You cannot promote or release a player who is on the trade block. You will need to remove them from the trade block before you can make them a starter or release them from your team.</p>
 <table class='footable table' data-sorting="true">
   <thead>
     <tr>
@@ -115,7 +115,8 @@ Promoting a backup to starter will replace the lowest average starter for that p
       <th data-type="number">Age</th>
       <th data-type="number">Cha</th>
       <th><span class='sr-only'>Move to Bench</span></th>
-      <th class='footable-last-column'><span class='sr-only'>Release From Team</span></th>
+      <th><span class='sr-only'>Release From Team</span></th>
+      <th class='footable-last-column'><span class='sr-only'>Trade Player</span></th>
     </tr>
   </thead>
   <tbody>
@@ -138,24 +139,64 @@ while($i < $player_num){
       <td><?=$row['charisma'];?></td>
 
       <td>
-        <form class='form-inline bid-form' action='/process/lineup-change.php' method='post'>
+<?php
+// don't allow promotion if player is being traded
+if (!$row['being_traded'] && !$row['being_offered']) {
+?>
+        <form class='form-inline' action='/process/lineup-change.php' method='post'>
           <input type='hidden' name='player' value='<?=$row['id'];?>' required />
           <input type='hidden' name='active' value='<?=$row['active'];?>' required />
           <div class='form-group'>
             <input type='submit' class='btn btn-default' value='Make Starter' />
           </div>
         </form>
+<?php } ?>
       </td>
 
       <td>
-        <form class='form-inline bid-form' action='/process/release-player.php' method='post'>
+<?php
+// don't allow release if player is being traded
+// instead, show a link to their offer page
+if (!$row['being_traded'] && !$row['being_offered']) {
+?>
+        <form class='form-inline' action='/process/release-player.php' method='post'>
           <input type='hidden' name='player' value='<?=$row['id'];?>' required />
           <div class='form-group'>
             <input type='submit' class='btn btn-danger' value='Release Player' />
           </div>
         </form>
+<?php } else { ?>
+      <a class='btn btn-default' href='/trade-offer.php?player=<?=$row['id'];?>'>View Trade Offers</a>
+<?php } ?>
       </td>
 
+      <td>
+<?php
+  // if the player is a backup, they can be traded
+  if (!$row['being_traded'] && !$row['being_offered']) {
+?>
+        <form class='form-inline' action='/process/set-trade-status.php' method='post'>
+          <input type='hidden' name='player' value='<?=$row['id'];?>' required />
+          <input type='submit' class='btn btn-danger' value='Trade Player' />
+        </form>
+<?php
+}
+// if they're being offered, don't show a button.
+if ($row['being_offered']) {
+?>
+        Offered in trade.
+<?php }
+// if they're being traded, we can remove them from the trade block
+if ($row['being_traded'])
+{ ?>
+        <form class='form-inline' action='/process/set-trade-status.php' method='post'>
+          <input type='hidden' name='player' value='<?=$row['id'];?>' required />
+          <input type='submit' class='btn btn-danger' value='Remove from Trade Block' />
+        </form>
+<?php
+  } // end trade checks
+?>
+      </td>
     </tr>
 <?php
 } // end if is_active check

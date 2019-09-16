@@ -1,7 +1,7 @@
 <?php
 require_once('../includes/_connect.inc.php');
 require_once('../functions/init.func.php');
-$error = "There was a problem submitting this form. Please try again.";
+$msg = "There was a problem submitting this form. Please try again.";
 $success = false;
 
 
@@ -10,7 +10,7 @@ $pColor = $_POST['primary-color'];
 $sColor = $_POST['secondary-color'];
 
 if (substr(strtolower($name),0,4) == 'the '){
-	$error = 'You can not use "the" to start your team name.';
+	$msg = 'You can not use "the" to start your team name.';
 	$success = false;
 }
 
@@ -18,12 +18,12 @@ if (substr(strtolower($name),0,4) == 'the '){
 if (strlen($pColor) != 7 || strlen($sColor) != 7 ||
 	!preg_match('/#([a-f0-9])/', $pColor) ||
 	!preg_match('/#([a-f0-9])/', $sColor)){
-		$error = "You entered an incorrect color value. Don't worry, we won't tell";
+		$msg = "You entered an incorrect color value. Don't worry, we won't tell";
 		$success = false;
   }
 
 if (empty($name) || empty($pColor) || empty($sColor) ){
-			$error = "You left a field blank. Please try again.";
+			$msg = "You left a field blank. Please try again.";
       $success = false;
 		}
 else{
@@ -46,7 +46,7 @@ if ( $success ){
 	$stmt->fetch();
 	$stmt->close();
   if ($fetchTeamname){
-		$error = "This team name is already in use. Please try another name.";
+		$msg = "This team name is already in use. Please try another name.";
 		$success = false;
 	}
 	else{}
@@ -70,6 +70,16 @@ if ( $success ){
   		VALUES
   			(?,?)");
   	$stmt->bind_param("ii", $_SESSION['user']['id'], $insertID);
+  	$stmt->execute();
+  	$stmt->close();
+
+		// Give team starter money
+  	$stmt = $db->prepare(
+  		"INSERT INTO team_money
+  			(team_id, credits)
+  		VALUES
+  			(?,500)");
+  	$stmt->bind_param("i", $insertID);
   	$stmt->execute();
   	$stmt->close();
 
@@ -139,6 +149,6 @@ if ( $success ){
     exit();
   }
 }
-$_SESSION['status'] = $error;
+$_SESSION['status'] = $msg;
 header("location:/");
 ?>

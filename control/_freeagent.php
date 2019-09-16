@@ -20,7 +20,7 @@ $stmt = $db->prepare(
   ON player_team.player_id = p.player_id
   JOIN contract
   ON contract.player_id = p.player_id
-  JOIN team
+  LEFT JOIN team
   ON bid.team_id = team.team_id
   WHERE days_left > 0
   ORDER BY position.position_id"

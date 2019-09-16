@@ -48,7 +48,7 @@ else if ( $gameDay > $maxGameDay ){
     "UPDATE player_team
       SET team_id = 0
       WHERE team_id != 0
-      AND player_id IN (SELECT contract.player_id FROM contract WHERE seasons_left = 0)"
+      AND player_id IN (SELECT contract.player_id FROM contract WHERE seasons_left <= 0)"
     );
   $stmt->execute();
   $stmt->close();
@@ -84,4 +84,32 @@ else{
   $stmt->close();
 }
 
+// update trade tables to remove any offers older than 3 days, and change the being_offered status for those players
+// reset "being_offered" first
+$stmt = $db->prepare(
+  "UPDATE player_team a
+	 SET being_offered = 0
+    WHERE a.player_id IN (
+      SELECT p.player_id
+      FROM player p
+      JOIN player_team_trade ptt
+      ON p.player_id = ptt.player_id_1
+  	   OR p.player_id = ptt.player_id_2
+       OR p.player_id = ptt.player_id_3
+       OR p.player_id = ptt.player_id_4
+       OR p.player_id = ptt.player_id_5
+      WHERE trade_start_date <= DATE_SUB(SYSDATE(), INTERVAL 3 DAY) AND trade_open = 1
+  )"
+);
+$stmt->execute();
+$stmt->close();
+// update player_team_trade to set these trades as inactive, status "declined"
+$stmt = $db->prepare(
+  "UPDATE player_team_trade
+    SET trade_status = 0,
+      trade_open = 0
+    WHERE trade_start_date <= DATE_SUB(SYSDATE(), INTERVAL 3 DAY) AND trade_open = 1"
+);
+$stmt->execute();
+$stmt->close();
 ?>

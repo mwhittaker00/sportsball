@@ -57,6 +57,16 @@ if ( $bid_num ){
       $qry->bind_param("ii",$row['team'],$row['player']);
       $qry->execute();
       $qry->close();
+	//
+  // Reset the contract length for this player
+      $qry = $db->prepare(
+        "UPDATE contract
+          SET seasons_left = 3
+          WHERE player_id = ?"
+        );
+      $qry->bind_param("i",$row['player']);
+      $qry->execute();
+      $qry->close();
   }
 }
 // Remove all expired entries from bid table

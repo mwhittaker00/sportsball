@@ -13,7 +13,7 @@
 
 <div id='main-container' class='container-fluid'>
 
-  <div class='row-fluid'>
+  <div class='row'>
 
     <h1>Create Your Team</h1>
     <hr />

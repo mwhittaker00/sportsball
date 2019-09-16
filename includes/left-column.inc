@@ -1,6 +1,6 @@
 <div class='col-sm-3'>
 
-  <div class='row-fluid'>
+  <div class='row'>
 
     <div class='team-info-box small'>
       <span class='team-name h3'>
@@ -17,7 +17,13 @@
         <br />
         <strong>Record: </strong><?=$_SESSION['user']['win'];?> - <?=$_SESSION['user']['loss'];?>
         <br />
-        <?=$_SESSION['user']['credits'];?> EuroBucks
+        <?=$_SESSION['user']['credits'];?> Credits
+        <br />
+        <p>
+          <strong>Season: </strong><?=$_SESSION['user']['current_season'];?>
+          <br />
+          <strong>Game Day: </strong><?=$_SESSION['user']['game_day'];?>
+        </p>
     </div>
 
     <div class='team-colors team-colors-bar'
@@ -28,7 +34,7 @@
         <?=$_SESSION['user']['color2'];?> 100%);">
     </div>
   </div>
-  <div class='row-fluid'>
+  <div class='row'>
     <div class='col-sm-12'>
 
       <div class='left-nav'>

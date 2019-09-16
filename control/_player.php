@@ -12,15 +12,15 @@ else{
 $stmt = $db->prepare(
   "SELECT position.position_id, position_name, p.player_id,
     first_name.name_text, last_name.last_name_text, team_name,
-    team.team_id, team_color1, team_color2, team_captain, player_age,
+    team.team_id, team_color1, team_color2, team_captain, being_traded, player_age,
     `player_speed`,`player_end`,`player_str`,`player_pass`,`player_block`,
     `player_shot`,`player_catch`,`player_aware`,`player_charisma`,
     ((`player_speed`+`player_end`+`player_str`+`player_pass`+`player_block`+
       `player_shot`+`player_catch`+`player_aware`+`player_charisma`)/9)
         as average_score,
-    daily_cost, seasons_left
+    daily_cost, seasons_left, player_team.is_active
   FROM player p
-  JOIN contract
+  LEFT JOIN contract
   ON p.player_id = contract.player_id
   JOIN player_position
   ON p.player_id = player_position.player_id
@@ -38,17 +38,16 @@ $stmt = $db->prepare(
   LIMIT 1");
 $stmt->bind_param('s',$player_id);
 $stmt->execute();
-$stmt->bind_result($position_id, $position, $player_id, $player_fname, $player_lname, $team_name, $team_id, $pColor, $sColor, $team_captain, $player_age, $speed, $endurance, $strength, $pass, $block, $shot, $catch, $aware, $charisma, $avg, $contract_cost, $contract_length);
+$stmt->bind_result($position_id, $position, $player_id, $player_fname, $player_lname, $team_name, $team_id, $pColor, $sColor, $team_captain, $being_traded, $player_age, $speed, $endurance, $strength, $pass, $block, $shot, $catch, $aware, $charisma, $avg, $contract_cost, $contract_length, $is_active);
 $stmt->fetch();
 $stmt->close();
 
-if ($team_captain == 0){
-  $team_captain = 'No';
-  $team_cpt_bool = false;
-}
-else{
-  $team_captain = 'Yes';
-  $team_cpt_bool = true;
+if ($team_captain){
+  $extra_info_str = '<span class="glyphicon glyphicon-star"><span class="sr-only">Captain</span></span>';
+} else if ($being_traded){
+  $extra_info_str = '<span class="glyphicon glyphicon-transfer"><span class="sr-only">Trade Block</span></span>';
+} else {
+  $extra_info_str = '';
 }
 
 $player = [
@@ -60,8 +59,9 @@ $player = [
   'team_id'     =>  $team_id,
   'color1'      =>  $pColor,
   'color2'      =>  $sColor,
-  'captain'     =>  $team_captain,
-  'cpt_bool'    =>  $team_cpt_bool,
+  'extra_info'  =>  $extra_info_str,
+  'captain'    =>  $team_captain,
+  'being_traded' => $being_traded,
   'age'         =>  $player_age,
   'speed'       =>  substr($speed,0,2),
   'endurance'   =>  substr($endurance,0,2),
@@ -74,7 +74,8 @@ $player = [
   'charisma'    =>  substr($charisma,0,2),
   'average'     =>  substr($avg,0,4),
   'contract_time'=> $contract_length,
-  'contract_cost'=> $contract_cost
+  'contract_cost'=> $contract_cost,
+  'is_active'   =>  $is_active
 ];
 
 ?>

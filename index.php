@@ -12,7 +12,7 @@
 
 <div id='main-container' class='container-fluid'>
 
-  <div class='row-fluid'>
+  <div class='row'>
 
     <div class='col-sm-7'>
       <h1>SportsBall! Yeah!</h1>
@@ -52,7 +52,7 @@
           <div class="col-sm-offset-3 col-sm-9">
             <div class="checkbox">
               <label>
-                <input name='terms' type="checkbox"> <a href='#'>I've read the rule and terms.</a>
+                <input name='terms' type="checkbox"> <a href='#'>I've read the rules and terms.</a>
               </label>
             </div>
           </div>

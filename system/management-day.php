@@ -44,4 +44,14 @@ $stmt = $db->prepare(
 );
 $stmt->execute();
 $stmt->close();
+
+// update the bid table to reflect their value
+$stmt = $db->prepare(
+  "UPDATE bid
+	SET bid_amount = (SELECT base_cost FROM contract WHERE contract.player_id = bid.player_id),
+    	bid_show = (SELECT base_cost FROM contract WHERE contract.player_id = bid.player_id)
+    WHERE team_id IS NULL"
+  );
+  $stmt->execute();
+  $stmt->close();
 ?>

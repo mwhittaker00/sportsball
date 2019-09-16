@@ -29,6 +29,7 @@ $stmt = $db->prepare("SELECT s.schedule_id,
     JOIN team
     ON ds.team_id = team.team_id
     WHERE team.team_id = ?
+		AND is_current_season = 1
 		ORDER BY s.schedule_id");
 $stmt->bind_param("s", $_SESSION['user']['team_id']);
 $stmt->execute();

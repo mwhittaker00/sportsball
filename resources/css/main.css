@@ -20,8 +20,8 @@ body{
   font-family: 'Open Sans',Helvetica,Arial,Verdana,sans-serif;
 }
 
-a{
-  color: #004784;
+a, a:hover{
+  color: #d0e9ff;
   font-weight:900;
 }
 
@@ -46,6 +46,10 @@ textarea{
   color:#000;
 }
 
+li {
+  padding: 5px 0;
+}
+
 a.light-link{
   color:#80ffff;
 }
@@ -56,6 +60,10 @@ a.light-link{
 #logo{
   position:relative;
   top:-5px;
+}
+
+nav a, nav a:hover{
+  color: #004784;
 }
 
 .navbar-nav{
@@ -221,7 +229,7 @@ table.footable tbody{
   font-size:14px;
 }
 
-table.footable tbody a{
+table.footable tbody a:not(.btn){
   color: #e9e9ff;
 }
 
@@ -253,21 +261,26 @@ table.footable.dropdown-menu a{
   top:2px;
 }
 
-.bid-form .form-group{
+table tbody .form-group{
   margin:0;
 }
 
-.bid-form .form-control{
+table tbody .form-control{
   width:60px;
   height:20px;
   padding:1px;
   margin:0;
   font-size:11px;
 }
-
-.bid-form .btn{
+table tbody .btn{
   padding:1px 5px;
   font-size:12px;
+}
+
+@media only screen and (max-width: 768px){
+  .user-link{
+    position:unset;
+  }
 }
 
 @media only screen and (min-width: 768px){
@@ -289,6 +302,25 @@ table.footable.dropdown-menu a{
   background-color:#337ab7;
 }
 
+.panel-title>a:focus, .panel-title>a:hover {
+  color: #333;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.panel-body, .panel-body a {
+  color: #333;
+}
+
+.panel-body a {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.panel-body a:hover {
+  font-weight: 400;
+}
+
  .btn{
    font-weight:bold;
  }
@@ -300,4 +332,8 @@ table.footable.dropdown-menu a{
  .well-sm{
    margin:1px;
    padding:4px;
+ }
+
+ .well a{
+   color: #004784;
  }

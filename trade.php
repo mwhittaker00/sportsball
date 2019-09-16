@@ -3,7 +3,7 @@
   if(!isset($_SESSION['user'])){
     header("location:/");
   }
-  require_once('./control/_freeagent.php');
+  require_once('./control/_trade.php');
   require_once('./includes/head.inc');
 ?>
 
@@ -29,8 +29,9 @@
 
   <div class='row'>
 <?php require_once('./includes/left-column.inc');?>
+
   <div class='col-sm-9'>
-    <h1>Free Agents</h1>
+    <h1>Trading Block</h1>
     <hr />
 <?php require_once('./includes/nav-office.inc');?>
 
@@ -38,13 +39,12 @@
   <thead>
     <tr>
       <th class='footable-first-column'>Name</th>
-      <th>Pos</th>
+      <th data-type="text">Team</th>
+      <th data-type="text">Pos</th>
       <th data-type="number">Avg</th>
       <th data-type="number">Age</th>
-      <th data-type="number">Bid</th>
-      <th data-type="number">Days Left</th>
-      <th>High Bid</th>
-      <th data-filterable="false" class='footable-last-column'><em>Bid</em></th>
+      <th></th>
+      <th data-filterable="false" class='footable-last-column'><em>Trade</em></th>
     </tr>
   </thead>
   <tbody>
@@ -60,25 +60,37 @@
           <?=$row['name'];?>
         </a>
       </td>
+      <td>
+        <a href="/team.php?team=<?=$row['team_id'];?>">
+          <?=$row['team'];?>
+        </a>
+      </td>
       <td><?=$row['position'];?></td>
       <td><?=$row['average'];?></td>
       <td><?=$row['age'];?></td>
-      <td><?=$row['cost'];?>s</td>
-      <td><?=$row['days_left'];?></td>
-      <td><?=$row['team'];?></td>
-      <td>
-        <form class='form-inline bid-form' action='/process/add-bid.php' method='post'>
-          <div class='form-group'>
-            <label for='bid-<?=$i;?>' class='sr-only'>Bid</label>
+<?php
+// if this player belongs to the current manager,
+// allow manager to remove them from the trade block
+if ($_SESSION['user']['team_id'] == $row['team_id']) {
+?>
+        <td>
+          <a class='btn btn-default' href='/trade-offer.php?player=<?=$row['id'];?>'>View Offers</a>
+        </td>
+        <td>
+          <form class='form-inline bid-form' action='/process/set-trade-status.php' method='post'>
             <input type='hidden' name='player' value='<?=$row['id'];?>' required />
-            <input type='text' class='bid-input form-control' name='bid' id='bid-<?=$i;?>' maxlength='7' required />
-          </div>
-          <div class='form-group'>
-            <input type='submit' class='btn btn-default' value='Bid' />
-          </div>
-        </form>
+            <input type='submit' class='btn btn-danger' value='Remove from Trade Block' />
+          </form>
+        </td>
+<?php } else { ?>
+        <td>
+          <a class='btn btn-default' href='/trade-offer.php?player=<?=$row['id'];?>'>Offer Trade</a>
+        </td>
+        <td>
+        </td>
     </tr>
 <?php
+    }
   $i++;
   }
 ?>

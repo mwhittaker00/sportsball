@@ -13,13 +13,11 @@
 
 <div id='main-container' class='container-fluid'>
 
-  <div class='row-fluid'>
+  <div class='row'>
 <?php require_once('./includes/left-column.inc');?>
-
+  <div class='col-sm-9'>
     <h1>The Front Office</h1>
     <hr />
-    <div class='col-sm-9'>
-
 <?php require_once('./includes/nav-office.inc');?>
 
       <div class='col-sm-8'>
